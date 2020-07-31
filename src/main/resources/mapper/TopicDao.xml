@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.se.dao.TopicDao">
+
+    <resultMap id="BaseResultMap" type="com.se.pojo.Topic">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="words" jdbcType="VARCHAR" property="words"/>
+        <result column="methodNum" jdbcType="INTEGER" property="methodNum"/>
+    </resultMap>
+
+    <select id="getAllTopic" resultMap="BaseResultMap">
+        select * from topic
+    </select>
+
+
+</mapper>

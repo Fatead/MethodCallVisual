@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>查看代码资产</title>
+    <script src="/methodClone/js/prettify.js"></script>
+    <script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="/methodClone/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+        .entry-content pre {
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            overflow: hidden;
+            padding: 8px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            white-space: -moz-pre-wrap;
+            white-space: -o-pre-wrap;
+        }
+        .entry-content pre.prettyprint {
+            margin-bottom: 20px
+        }
+
+        .entry-content pre code {
+            padding: 0;
+            color: inherit;
+            white-space: pre;
+            white-space: pre-wrap;
+            background-color: transparent;
+            border: 0
+        }
+
+        .prettyprint.linenums,pre.prettyprint.linenums {
+            overflow:auto;
+            -webkit-box-shadow: inset 40px 0 0 #eee,inset 42px 0 0 #33b796;
+            -moz-box-shadow: inset 40px 0 0 #eee,inset 42px 0 0 #33b796;
+            box-shadow: inset 40px 0 0 #eee,inset 42px 0 0 #33b796
+        }
+
+        .prettyprint.linenums ol,pre.prettyprint.linenums ol {
+            margin: 0 0 0 0px;
+            padding-left:35px;
+        }
+
+        .prettyprint.linenums ol li,pre.prettyprint.linenums ol li {
+            padding-left: 6px;
+            color: #bebec5;
+            line-height: 20px;
+            margin-left: 0;
+            list-style: decimal
+        }
+
+        .prettyprint.linenums ol li:before,pre.prettyprint.linenums ol li:before {
+            content: "";
+            width: 0
+        }
+
+        .prettyprint .com {
+            color: #666
+        }
+
+        .prettyprint .lit {
+            color: #c0c
+        }
+
+        .prettyprint .pun,.prettyprint .opn,.prettyprint .clo {
+            color: #0a0
+        }
+
+        .prettyprint .fun {
+            color: #dc322f
+        }
+
+        .prettyprint .str,.prettyprint .atv {
+            color: #333
+        }
+
+        .prettyprint .kwd,.prettyprint .tag {
+            color: #f92659
+        }
+
+        .prettyprint .typ,.prettyprint .atn,.prettyprint .dec,.prettyprint .var {
+            color: #0a0
+        }
+
+        .prettyprint .pln {
+            color: #00f
+        }
+    </style>
+</head>
+<body>
+<div class="navbar navbar-default" style="margin: 0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">项目代码可视化系统</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/methodClone/">返回首页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group" style="width: 30%;margin-left: 35%">
+            <label>选择克隆集类型</label>
+            <select class="form-control" id="cloneGroupCategory">
+                <option selected="selected">所有类型</option>
+                <option>项目内克隆</option>
+                <option>跨项目克隆</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="width: 30%;margin-left: 35%">
+            <label>根据克隆集选择代码资产进行查看</label>
+            <select class="form-control" id="cloneSetList">
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="width: 80%" id="codecontainer">
+</div>
+
+</body>
+<script src="/methodClone/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+    function displayCodeAsset(methodInfoList){
+        var Array = [...methodInfoList]
+
+        var $codecontainer = $('#codecontainer')
+
+        $codecontainer.empty();
+
+        for (const [index, item] of Array.entries()) {
+            if(index%2===0){
+                $codecontainer.append($('<div/>', {'class': 'row'}));
+            }
+
+            $codecontainer.children('.row').last().append(
+                $('<div/>', {'class': 'col-sm-6 col-md-4', 'style': 'width: 45%'}).append(
+                    $('<div/>', {'class': 'thumbnail'}).append(
+                        $('<div/>', {'class': 'caption'}).append(
+                            $('<h3/>').text((index+1)+'.'+item.methodName + "      项目名:" + item.projectName)
+                        ).append(
+                            $('<span/>', {'class': 'label label-info'}).text("是否被识别为代码资产:" + item.isAsset)
+                        ).append(
+                            $('<span/>', {'class': 'label label-info'}).text("主题词:" + item.topicWords)
+                        ).append(
+                            $('<pre/>', {'class': 'prettyprint Lang-java'}).text(item.qualifiedName)
+                        ).append(
+                            $('<pre/>', {'class': 'prettyprint Lang-java'}).text(item.methodContent)
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+    $("#cloneSetList").change(function () {
+        $.ajax({
+            type:'POST',
+            url:'/methodClone/codeasset/data',
+            dataType: 'json',
+            data: {
+                cloneSetId:$("#cloneSetList option:selected").text()
+            },
+            success: function(msg) {
+                var reslut = JSON.parse(JSON.stringify(msg));
+                var methodInfoList = reslut.data;
+                displayCodeAsset(methodInfoList);
+                prettyPrint();
+            }
+        })
+    });
+
+    $("#cloneGroupCategory").change(function () {
+        let selection = $("#cloneGroupCategory option:selected").text();
+        let kind = "";
+        if(selection === "所有类型"){
+            kind = "all";
+        }else if(selection === "项目内克隆"){
+            kind = "sameProject";
+        }else if(selection === "跨项目克隆"){
+            kind = "crossProject";
+        }
+        $.ajax({
+            type:'POST',
+            url:'/methodClone/codeasset/getCloneGroup',
+            dataType: 'json',
+            data: {
+                cloneGroupCate: kind
+            },
+            success: function(msg) {
+                $("#cloneSetList").empty();
+                var data = JSON.parse(JSON.stringify(msg));
+                var cloneGroupIdList = data.data['cloneGroupIdList'];
+                methodInfoExampleList = data.data['methodInfoExampleList'];
+                console.log(cloneGroupIdList);
+                var Array = [...cloneGroupIdList];
+                Array.forEach(function(item){
+                    $("#cloneSetList").prepend("<option>" + item + "</option>")
+                });
+                displayCodeAsset(methodInfoExampleList);
+                prettyPrint();
+            }
+        })
+    });
+
+
+    $(document).ready(function(){
+        $.ajax({
+            type:'GET',
+            data:'',
+            url:'/methodClone/codeasset/set',
+            dataType: 'json',
+            success: function(msg) {
+                var data = JSON.parse(JSON.stringify(msg))
+                var cloneGroupIdList = data.data['cloneGroupIdList']
+                methodInfoExampleList = data.data['methodInfoExampleList']
+                var Array = [...cloneGroupIdList]
+                Array.forEach(function(item){
+                    $("#cloneSetList").prepend("<option>" + item + "</option>")
+                });
+                displayCodeAsset(methodInfoExampleList);
+                prettyPrint();
+            }
+        });
+    });
+
+    $(window).load(function(){
+        prettyPrint();
+    })
+</script>
+</html>

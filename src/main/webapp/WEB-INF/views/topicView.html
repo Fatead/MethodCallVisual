@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查看主题分布</title>
+    <script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="/methodClone/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+
+    </style>
+</head>
+<body>
+<div class="navbar navbar-default" style="margin: 0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">项目代码可视化系统</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/methodClone/">返回首页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div class="panel panel-default">
+
+
+</div>
+
+<div class="container" style="width: 80%" id="codecontainer">
+</div>
+
+</body>
+
+<script src="/methodClone/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+<script type="text/javascript">
+
+    function displayTopicInfo(topicInfoList){
+        var Array = [...topicInfoList]
+        var $codecontainer = $('#codecontainer')
+        $codecontainer.empty();
+        for (const [index, item] of Array.entries()) {
+            if(index%4===0){
+                $codecontainer.append($('<div/>', {'class': 'row'}));
+            }
+            $codecontainer.children('.row').last().append(
+                $('<div/>', {'class': 'col-sm-6 col-md-4', 'style': 'width: 20%'}).append(
+                    $('<div/>', {'class': 'thumbnail'}).append(
+                        $('<div/>', {'class': 'caption'}).append(
+                            $('<h3/>').text("主题 Id:" + item.id)
+                        ).append(
+                            $('<span/>', {'class': 'label label-info'}).text("该主题下的所有方法总数:" + item.methodNum)
+                        ).append(
+                            $('<div/>', {'class': 'panel panel-default'}).text("主题词:" + item.words)
+                        )
+                    )
+                )
+            )
+        }
+    }
+
+
+    $(document).ready(function(){
+        $.ajax({
+            type:'GET',
+            data:'',
+            url:'/methodClone/topic/getTopic',
+            dataType: 'json',
+            success: function(msg) {
+                var data = JSON.parse(JSON.stringify(msg));
+                var topicList = data.topicList;
+                displayTopicInfo(topicList)
+            }
+        });
+    });
+
+</script>
+</html>

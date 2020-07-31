@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <title>程序结构图</title>
+    <script src="/methodClone/js/echarts.min.js"></script>
+    <script src="/methodClone/js/vue.js"></script>
+    <script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="/methodClone/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main {
+            width: 100%;
+            min-height: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- 为ECharts准备一个全屏的Dom -->
+<div class="navbar navbar-default" style="margin: 0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">项目代码可视化系统</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/methodClone/"><span class="glyphicon glyphicon-th-large"></span>返回首页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div id="main"></div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            entityAndrelation: {
+                "entity":[],
+                "relation":[]
+            }
+        },
+        method: {},
+        created(){
+        },
+        mounted(){
+            var thisData = this
+            // 基于准备好的dom，初始化echarts实例
+
+            var myChart = echarts.init(document.getElementById('main'));
+
+            let legendes = [];
+
+            let texts = [{
+                name: 'Class',
+                itemStyle: {
+                    normal: {
+                        color: '#6F9FA7'
+                    }
+                }
+            },
+                {
+                    name: 'Interface',
+                    itemStyle: {
+                        normal: {
+                            color: '#B34038'
+                        }
+                    }
+                },
+                {
+                    name: 'Field',
+                    itemStyle: {
+                        normal: {
+                            color: '#808080'
+                        }
+                    }
+                },
+                {
+                    name: 'Method',
+                    itemStyle: {
+                        normal: {
+                            color: '#C1883A'
+                        }
+                    }
+                }
+            ]
+            for (let i = 0; i < texts.length; i++) {
+                legendes.push(texts[i].name)
+            }
+
+            $.ajax({
+                type:'GET',
+                data:'',
+                url:'/methodClone/graph/dataInViewInClassGra',
+                dataType: 'json',
+                data: {
+
+                },
+                success: function(msg){
+                    var data = JSON.parse(JSON.stringify(msg))
+                    console.log(data)
+
+                    var entityListJS = data.data.entityList
+                    var arr1 = [...entityListJS]
+                    arr1.forEach(function(item){
+                        var obj = {}
+                        obj.id = item.id
+                        obj.name = item.name
+                        obj.category = item.category
+                        obj.symbolSize = 12
+                        obj.value = item.value
+                        thisData.entityAndrelation.entity.push(obj)
+                    })
+
+                    var relationListJS = data.data.relationList
+                    var arr2 = [...relationListJS]
+                    arr2.forEach(function(item){
+                        var obj = {}
+                        obj.source = item.source
+                        obj.target = item.target
+                        obj.value = item.value
+                        thisData.entityAndrelation.relation.push(obj)
+                    })
+
+                    let option = {
+                        backgroundColor: new echarts.graphic.RadialGradient(0.3, 0.3, 0.8, [{
+                            offset: 0,
+                            color: '#f7f8fa'
+                        }, {
+                            offset: 1,
+                            color: '#C0C0C0'
+                        }]),
+
+                        tooltip: {
+                            show: true,
+                            showContent: true,
+                            trigger: 'item',
+                            triggerOn: 'mousemove',
+                            alwaysShowContent: false,
+                            showDelay: 100,
+                            hideDelay: 100,
+                            enterable: false,
+                            position: 'right',
+                            confine: false,
+                            transitionDuration: 0.2
+                        },
+                        legend: {
+                            show: false,
+                            data: legendes
+                        },
+                        series: [{
+                            type: 'graph', // 关系图
+                            // name: 'Program Model', // 系列名称
+                            layout: 'force',
+                            legendHoverLink: true,
+                            hoverAnimation: false,
+                            coordinateSystem: null,
+                            force: {
+
+                                repulsion: 500, // 节点之间的斥力因子
+                                gravity: 0.1, // 节点受到的向中心的引力因子
+                                edgeLength: 100 // 边的两个节点之间的距离
+
+                            },
+                            roam: true,
+                            nodeScaleRatio: 0.6,
+                            draggable: true,
+                            focusNodeAdjacency: true,
+
+                            edgeSymbol: ['circle', 'arrow'], // 边两端的标记类型
+                            edgeSymbolSize: [0, 5], // 边两端的标记大小
+
+                            // 图形样式
+                            itemStyle: {
+                                normal: {
+                                    // 默认样式
+                                    label: {
+                                        show: true
+                                    },
+                                    borderType: 'solid',
+                                    borderColor: '#ccc',
+                                    borderWidth: 0,
+                                    opacity: 1
+                                },
+                                emphasis: {
+                                    // 高亮状态
+                                    borderWidth: 1
+                                }
+                            },
+
+                            //关系边的公用线条样式
+                            lineStyle: {
+                                normal: {
+                                    // color: 'source',
+                                    color: '#4b565b',
+                                    width: '0.6',
+                                    type: 'solid',
+                                    curveness: 0,
+                                    opacity: 0.6
+                                },
+                                emphasis: {
+                                    // 高亮状态
+                                    width: '1',
+                                    opacity: 0.5
+                                }
+                            },
+
+                            // 结点图形上的文本标签
+                            label: {
+                                normal: {
+                                    show: true,
+                                    position: 'top' ,
+                                    textStyle: {
+                                        // 标签的字体样式
+                                        // color: '#d3d7d4',
+                                        fontStyle: 'normal',
+                                        fontWeight: 'normal',
+                                        fontFamily: 'sans-serif',
+                                        fontSize: 10
+                                    }
+                                },
+                                emphasis: {
+                                    // 高亮状态
+                                }
+                            },
+
+                            //连接线上的文本标签
+                            edgeLabel: {
+                                normal: {
+                                    show: true,
+                                    textStyle: {
+                                        fontSize:10,
+                                        fontStyle: 'italic',
+                                        fontWeight: 'lighter',
+                                        color: '#333',
+                                        opacity: 0.6
+
+                                    },
+                                    formatter: '{c}'
+                                },
+                                emphasis: {
+                                    // 高亮状态
+                                }
+                            },
+                            categories: texts,
+                            data: thisData.entityAndrelation.entity,
+                            links: thisData.entityAndrelation.relation
+                        }]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                }
+            })
+
+        }
+    })
+</script>
+</body>
+</html>

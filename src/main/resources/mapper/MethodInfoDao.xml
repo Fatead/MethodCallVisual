@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.se.dao.MethodInfoDao">
+    <resultMap id="BaseResultMap" type="com.se.pojo.MethodInfo">
+        <result column="projectName" jdbcType="VARCHAR" property="projectName"/>
+        <result column="methodName" jdbcType="VARCHAR" property="methodName"/>
+        <result column="className" jdbcType="VARCHAR" property="className"/>
+        <result column="returnType" jdbcType="VARCHAR" property="returnType"/>
+        <result column="qualifiedName" jdbcType="VARCHAR" property="qualifiedName"/>
+        <result column="methodParameters" jdbcType="VARCHAR" property="methodParameters"/>
+        <result column="methodContent" jdbcType="LONGVARCHAR" property="methodContent"/>
+        <result column="ID" jdbcType="INTEGER" property="ID"/>
+        <result column="asset" jdbcType="INTEGER" property="isAsset"/>
+        <result column="topicWords" jdbcType="VARCHAR" property="topicWords"/>
+    </resultMap>
+
+    <select id="getMethodInfoListByClassName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from methodinfo
+        where className = #{className} and projectName = #{projectName}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select *
+        from methodinfo
+    </select>
+
+    <select id="getPossibleMethodInfo" resultMap="BaseResultMap">
+        select *
+        from methodinfo
+        where projectName = #{projectName} and methodName = #{methodName} and methodParameters = #{parameters} and returnType = #{returnType}
+
+    </select>
+
+    <select id="getPossibleCallerMethod" resultMap="BaseResultMap">
+        select *
+        from methodinfo
+        where methodName = #{methodName} and className = #{className} and projectName = #{projectName}
+    </select>
+
+    <select id="getAllCloneGroupId" resultType="java.lang.String">
+        select distinct cloneGroupId
+        from methodinfo
+        where cloneGroupId is not null and cloneGroupId IN (SELECT cloneGroupId FROM methodinfo GROUP BY cloneGroupId HAVING COUNT(*)>1)
+        order by cloneGroupId
+    </select>
+
+<!--    <select id="getAllCloneGroupId" resultType="java.lang.String">-->
+<!--        select distinct cloneGroupId-->
+<!--        from methodinfo-->
+<!--        where cloneGroupId is not null-->
+<!--    </select>-->
+
+    <select id="getSameProjectCloneGroupId" resultType="java.lang.String">
+        select distinct cloneGroupId
+        from methodinfo
+        where cloneGroupId is not null and isSameProjectClone = 1 and cloneGroupId IN (SELECT cloneGroupId FROM methodinfo GROUP BY cloneGroupId HAVING COUNT(*)>1)
+        order by cloneGroupId
+    </select>
+
+    <select id="getCrossProjectCloneGroupId" resultType="java.lang.String">
+        select distinct cloneGroupId
+        from methodinfo
+        where cloneGroupId is not null and isSameProjectClone = 0 and cloneGroupId IN (SELECT cloneGroupId FROM methodinfo GROUP BY cloneGroupId HAVING COUNT(*)>1)
+        order by cloneGroupId
+    </select>
+
+
+    <select id="getCloneIdByCloneGroupId" resultMap="BaseResultMap">
+        select *
+        from methodinfo
+        where cloneGroupId = #{cloneGroupId}
+    </select>
+
+</mapper>

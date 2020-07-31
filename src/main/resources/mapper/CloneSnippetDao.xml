@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.se.dao.CloneSnippetDao">
+    <resultMap id="BaseResultMap" type="com.se.pojo.CloneSnippet">
+
+        <result column="projectName" jdbcType="VARCHAR" property="projectName"/>
+        <result column="cloneSnippetId" jdbcType="VARCHAR" property="cloneSnippetId"/>
+        <result column="cloneSetId" jdbcType="VARCHAR" property="cloneSetId"/>
+        <result column="methodId" jdbcType="VARCHAR" property="methodId"/>
+        <result column="begintoken" jdbcType="INTEGER" property="beginToken"/>
+        <result column="endtoken" jdbcType="INTEGER" property="endToken"/>
+        <result column="tokenNums" jdbcType="INTEGER" property="tokenNums"/>
+
+    </resultMap>
+
+    <select id="getAllCloneSetByProjectName" parameterType="java.lang.String" resultType="java.lang.String">
+        select distinct cloneSetId from clonesnippet
+        where projectName = #{projectName}
+    </select>
+
+    <select id="getAllMethodInCloneSet" parameterType="java.lang.String" resultType="java.lang.String">
+        select distinct methodId from clonesnippet
+        where cloneSetID = #{cloneSetID}
+    </select>
+</mapper>

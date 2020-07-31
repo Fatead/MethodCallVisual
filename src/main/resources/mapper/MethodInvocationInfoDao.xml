@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.se.dao.MethodInvocationInfoDao">
+    <resultMap id="BaseResultMap" type="com.se.pojo.MethodInvocationInfo">
+        <result column="projectName" jdbcType="VARCHAR" property="projectName"/>
+        <result column="invocateVariant" jdbcType="VARCHAR" property="invocateVariant"/>
+        <result column="callMethodName" jdbcType="VARCHAR" property="callMethodName"/>
+        <result column="calledMethodName" jdbcType="VARCHAR" property="calledMethodName"/>
+        <result column="callMethodParameters" jdbcType="VARCHAR" property="callMethodParameters"/>
+        <result column="calledMethodParameters" jdbcType="VARCHAR" property="calledMethodParameters"/>
+        <result column="callMethodReturnType" jdbcType="VARCHAR" property="callMethodReturnType"/>
+        <result column="calledMethodReturnType" jdbcType="VARCHAR" property="calledMethodReturnType"/>
+        <result column="ID" jdbcType="INTEGER" property="ID"/>
+    </resultMap>
+
+    <update id="updateId">
+        update methodinvocationinfo
+        set id = #{newId}
+        where id = #{id}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select *
+        from methodinvocationinfo
+    </select>
+
+    <select id="getMethodInvocationByProjectName" resultMap="BaseResultMap">
+        select *
+        from methodinvocationinfo
+        where projectName =#{projectName}
+    </select>
+
+    <select id="getCalledMethodByCallNameAndProjectName" resultMap="BaseResultMap">
+        select *
+        from methodinvocationinfo
+        where projectName =#{projectName} and callMethodName =#{callMethodName}
+    </select>
+
+    <select id="getAllProjectName" resultType="String">
+        select distinct projectName
+        from methodinvocationinfo
+    </select>
+
+
+</mapper>

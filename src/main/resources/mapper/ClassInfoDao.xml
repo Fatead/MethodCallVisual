@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.se.dao.ClassInfoDao">
+    <resultMap id="BaseResultMap" type="com.se.pojo.ClassInfo">
+        <result column="projectName" jdbcType="VARCHAR" property="projectName"/>
+        <result column="className" jdbcType="VARCHAR" property="className"/>
+        <result column="isInterface" jdbcType="VARCHAR" property="isInterface"/>
+        <result column="fileName" jdbcType="VARCHAR" property="fileName"/>
+        <result column="ID" jdbcType="INTEGER" property="ID"/>
+    </resultMap>
+
+    <select id="getProjectNameList" resultType="java.lang.String">
+        select distinct projectName
+        from classinfo
+    </select>
+
+    <select id="getAllNonAnonymousClassByProjectName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select * from classinfo
+        where projectName = #{projectName} and className != 'anonymous'
+    </select>
+
+    <select id="getClassInfoByInterfaceNameWithoutPackage" resultMap="BaseResultMap">
+        select * from classinfo
+        where projectName = #{projectName} and className like #{interfaceName}
+    </select>
+
+    <update id="updateId">
+        update classinfo
+        set ID = #{newId}
+        where ID = #{ID}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select *
+        from classinfo
+    </select>
+
+    <select id="getIdByClassName" resultType="java.lang.String">
+        select ID
+        from classinfo
+        where className = #{className} and projectName = #{projectName}
+    </select>
+
+</mapper>
