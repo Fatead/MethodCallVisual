@@ -11,6 +11,7 @@
         <result column="methodParameters" jdbcType="VARCHAR" property="methodParameters"/>
         <result column="methodContent" jdbcType="LONGVARCHAR" property="methodContent"/>
         <result column="ID" jdbcType="INTEGER" property="ID"/>
+        <result column="topicId" jdbcType="INTEGER" property="topicId"/>
         <result column="asset" jdbcType="INTEGER" property="isAsset"/>
         <result column="topicWords" jdbcType="VARCHAR" property="topicWords"/>
     </resultMap>

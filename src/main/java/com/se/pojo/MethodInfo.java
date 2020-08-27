@@ -18,6 +18,7 @@ public class MethodInfo {
   private int ID;
   private int isAsset;
   private String topicWords;
+  private int topicId;
 
   public String getProjectName() {
     return projectName;
@@ -101,4 +102,11 @@ public class MethodInfo {
     return Arrays.asList(topicWords.split(" "));
   }
 
+  public int getTopicId() {
+    return topicId;
+  }
+
+  public void setTopicId(int topicId) {
+    this.topicId = topicId;
+  }
 }

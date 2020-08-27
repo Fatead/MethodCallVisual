@@ -7,7 +7,8 @@
         <result column="className" jdbcType="VARCHAR" property="className"/>
         <result column="isInterface" jdbcType="VARCHAR" property="isInterface"/>
         <result column="fileName" jdbcType="VARCHAR" property="fileName"/>
-        <result column="ID" jdbcType="INTEGER" property="ID"/>
+        <result column="fileName" jdbcType="VARCHAR" property="fileName"/>
+        <result column="layer" jdbcType="VARCHAR" property="layer"/>
     </resultMap>
 
     <select id="getProjectNameList" resultType="java.lang.String">
@@ -40,6 +41,18 @@
         select ID
         from classinfo
         where className = #{className} and projectName = #{projectName}
+    </select>
+
+    <select id="getClassListByLayer" resultType="java.lang.String">
+        select className
+        from classinfo
+        where layer = #{layer} and projectName = #{projectName}
+    </select>
+
+    <select id="getProjectLayerNumbers" resultType="java.lang.Integer">
+        select count(distinct layer)
+        from classinfo
+        where projectName = #{projectName}
     </select>
 
 </mapper>

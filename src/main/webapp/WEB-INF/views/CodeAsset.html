@@ -163,6 +163,8 @@
                         ).append(
                             $('<span/>', {'class': 'label label-info'}).text("是否被识别为代码资产:" + item.isAsset)
                         ).append(
+                            $('<span/>', {'class': 'label label-info'}).text("主题ID:" + item.topicId)
+                        ).append(
                             $('<span/>', {'class': 'label label-info'}).text("主题词:" + item.topicWords)
                         ).append(
                             $('<pre/>', {'class': 'prettyprint Lang-java'}).text(item.qualifiedName)

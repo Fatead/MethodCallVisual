@@ -42,5 +42,12 @@ public class ClassInfoDaoTest {
     }
 
 
+    @Test
+    public void getClassByLayer(){
+        List<String> classList = classInfoDao.getClassListByLayer("HardChair-Backend-master","service");
+        for(String str:classList){
+            System.out.println(str);
+        }
+    }
 
 }

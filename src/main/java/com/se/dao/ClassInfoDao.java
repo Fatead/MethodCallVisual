@@ -42,4 +42,8 @@ public interface ClassInfoDao {
      */
     String getIdByClassName(@Param("className") String className, @Param("projectName") String projectName);
 
+    List<String> getClassListByLayer(@Param("projectName") String projectName, @Param("layer") String layer);
+
+    int getProjectLayerNumbers(@Param("projectName") String projectName);
+
 }

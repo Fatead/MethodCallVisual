@@ -2,6 +2,8 @@ package com.se.service.impl;
 import com.se.dao.MethodInfoDao;
 import com.se.pojo.MethodInfo;
 import com.se.service.CodeAssetService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;

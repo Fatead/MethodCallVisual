@@ -10,6 +10,7 @@ public class ClassInfo {
   private String className;
   private Boolean isInterface;
   private String fileName;
+  private String layer;
 
   public String getProjectName() {
     return projectName;
@@ -53,5 +54,12 @@ public class ClassInfo {
   }
 
 
+  public String getLayer() {
+    return layer;
+  }
+
+  public void setLayer(String layer) {
+    this.layer = layer;
+  }
 }
 

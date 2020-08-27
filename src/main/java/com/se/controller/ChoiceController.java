@@ -26,6 +26,11 @@ public class ChoiceController {
         return "CodeAsset";
     }
 
+    @GetMapping("springvisual")
+    public String getSpringPage(HttpServletRequest request, HttpServletResponse response){
+        return "SpringVisualize";
+    }
+
     @GetMapping("topic")
     public String getTopicPage(HttpServletRequest request, HttpServletResponse response){
         return "topicView";
