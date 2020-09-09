@@ -23,21 +23,49 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
         List<TreeNode> CycleGraphNodeList = new ArrayList<>();
         List<TreeLink> CycleGraphLinkList = new ArrayList<>();
         Map<String, List> CycleNodeAndLinkMap = new HashMap<>();
-        Map<String,String> methodInvoke = methodInvocationInViewService.getAllMethodInvokeTreeRootsByProjectName(projectName);
+
+        // 入度出度都不为0
+        Map<String,String> methodInvoke = methodInvocationInViewService.getAllInvokedMethodsByProjectName(projectName);
+
         for(String str:methodInvoke.keySet()){
-            Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeTreeByMethodId(str,methodInvoke.get(str));
+            Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeAndCycleFlag(str,methodInvoke.get(str));
             List<TreeNode> graphNodeList = nodeAndLinkMap.get("entity");
             List<TreeLink> graphLinkList = nodeAndLinkMap.get("relation");
-            if(getCycleFromTree(graphNodeList,graphLinkList)){
+            boolean cycleFlag = (boolean)nodeAndLinkMap.get("cycleFlag").get(0);
+            if(cycleFlag){
                 CycleGraphLinkList.addAll(graphLinkList);
                 CycleGraphNodeList.addAll(graphNodeList);
             }
         }
         CycleNodeAndLinkMap.put("entity", CycleGraphNodeList);
         CycleNodeAndLinkMap.put("relation", CycleGraphLinkList);
+
+
         return CycleNodeAndLinkMap;
     }
 
+    //    @Override
+//    public Map<String, List> getAllCycles(String projectName){
+//        List<TreeNode> CycleGraphNodeList = new ArrayList<>();
+//        List<TreeLink> CycleGraphLinkList = new ArrayList<>();
+//        Map<String, List> CycleNodeAndLinkMap = new HashMap<>();
+//        Map<String,String> methodInvoke = methodInvocationInViewService.getAllMethodInvokeTreeRootsByProjectName(projectName);
+//        for(String str:methodInvoke.keySet()){
+//            Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeTreeByMethodId(str,methodInvoke.get(str));
+//            List<TreeNode> graphNodeList = nodeAndLinkMap.get("entity");
+//            List<TreeLink> graphLinkList = nodeAndLinkMap.get("relation");
+//            if(getCycleFromTree(graphNodeList,graphLinkList)){
+//                CycleGraphLinkList.addAll(graphLinkList);
+//                CycleGraphNodeList.addAll(graphNodeList);
+//            }
+//        }
+//        CycleNodeAndLinkMap.put("entity", CycleGraphNodeList);
+//        CycleNodeAndLinkMap.put("relation", CycleGraphLinkList);
+//        return CycleNodeAndLinkMap;
+//    }
+//
+//
+//
     private List<String> getCalledNode(String callId,List<TreeLink> graphLinkList){
         List<String> calledList = new ArrayList<>();
         for(TreeLink link:graphLinkList){

@@ -50,8 +50,55 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
         Tree tree = new Tree();
         //节点是方法调用，而不是方法
         Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
-        return tree.breadth(treeNode);
+        return tree.breadthFirst(treeNode);
     }
 
+    @Override
+    public Map<String, String> getAllInvokedMethodsByProjectName(String projectName) {
+        //获取入度不为0且出度不为0的节点
+        List<MethodInvocationInView> methodInvocationInViewList =  methodInvocationInViewDao.getMethodInvocationInViewByProjectName(projectName);
+
+        Set<GraphNode> calledMethodSet = new HashSet<>();
+        Set<GraphNode> callMethodSet = new HashSet<>();
+        for(MethodInvocationInView methodInvocationInView:methodInvocationInViewList) {
+            calledMethodSet.add(new GraphNode(methodInvocationInView.getCalledMethodID(),methodInvocationInView.getCalledMethodName(), NodeType.METHOD_NODE));
+            callMethodSet.add(new GraphNode(methodInvocationInView.getCallMethodID(),methodInvocationInView.getCallMethodName(), NodeType.METHOD_NODE));
+        }
+
+        Map<String, String> calledMethodMap = new HashMap<>();
+        for(GraphNode calledMethodNode : calledMethodSet){
+            if(callMethodSet.contains(calledMethodNode))
+                calledMethodMap.putIfAbsent(calledMethodNode.getId(), calledMethodNode.getName());
+        }
+
+        return calledMethodMap;
+    }
+
+    @Override
+    public Set<String> getLeafNodesOfCallTree(String methodId, String methodName) {
+        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
+        Tree tree = new Tree();
+        //节点是方法调用，而不是方法
+        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
+
+        // 获取方法调用树中叶子结点上的被调用方法
+        Set<Node> leafNodes = treeNode.getAllLeafNodes();
+        Set<String> leafMethodCallNodes = new HashSet<>();
+        for(Node methodCallNode : leafNodes){
+            if(methodCallNode.associatedObject != null)
+                leafMethodCallNodes.add(methodCallNode.associatedObject.getCalledMethodID());
+        }
+
+        return leafMethodCallNodes;
+    }
+
+
+    public Map<String, List> getMethodInvokeAndCycleFlag(String methodId, String methodName) {
+        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
+        Tree tree = new Tree();
+        //节点是方法调用，而不是方法
+        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
+        return tree.depthFirsh(treeNode);
+    }
 
 }

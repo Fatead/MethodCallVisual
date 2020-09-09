@@ -29,5 +29,11 @@
                     order by callMethodID desc, calledMethodID desc) method_invocation_sorted,
                 (select @pv := #{callerMethodId}) root
             where find_in_set(callMethodID, @pv) > 0 and length(@pv := concat(@pv, ',', calledMethodID))
-        </select>
+    </select>
+
+    <select id="getMethodCallByCallerMethodId" resultMap="BaseResultMap">
+        select *
+        from methodinvocationinview
+        where callMethodID = #{callerMethodId}
+    </select>
 </mapper>

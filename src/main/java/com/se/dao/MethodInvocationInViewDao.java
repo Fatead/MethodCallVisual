@@ -11,4 +11,6 @@ public interface MethodInvocationInViewDao {
     List<MethodInvocationInView> getMethodInvocationInViewByProjectName(@Param("projectName") String projectName);
 
     List<MethodInvocationInView> getMethodCallTreeByRootName(@Param("callerMethodId") String callerMethodId);
+
+    List<MethodInvocationInView> getMethodCallByCallerMethodId(@Param("callerMethodId") String callerMethodId);
 }
