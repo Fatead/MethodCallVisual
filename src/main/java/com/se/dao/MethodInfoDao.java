@@ -58,5 +58,7 @@ public interface MethodInfoDao {
      */
     List<MethodInfo> getCloneIdByCloneGroupId(@Param("cloneGroupId") int cloneGroupId);
 
+    int updateMethodCycleDependency(@Param("ID")String id);
+
 
 }

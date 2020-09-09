@@ -1,6 +1,7 @@
 package com.se.service.impl;
 
 
+import com.se.dao.MethodInfoDao;
 import com.se.dao.MethodInvocationInViewDao;
 import com.se.service.MethodInvocationCycle;
 import com.se.service.MethodInvocationInViewService;
@@ -25,6 +26,8 @@ public class MethodInvocationCycleTest {
     private MethodInvocationInViewService methodInvocationInViewService;
     @Autowired
     private MethodInvocationInViewDao methodInvocationInViewDao;
+    @Autowired
+    private MethodInfoDao methodInfoDao;
 
     private boolean circleFlag = false;
 
@@ -77,9 +80,9 @@ public class MethodInvocationCycleTest {
 
     @Test
     public void test(){
-        Map<String, List> result = getAllCycles("Cycle");
+        Map<String, List> result = getAllCycles("Tencent");
         for(Map.Entry<String, List> entry: result.entrySet()){
-            System.out.println("cycle lll:"+entry.getKey() + "->" + entry.getValue());
+            System.out.println("cycle method:"+entry.getKey() + "->" + entry.getValue());
         }
     }
 
@@ -91,7 +94,11 @@ public class MethodInvocationCycleTest {
         // 入度出度都不为0
         Map<String,String> methodInvoke = methodInvocationInViewService.getAllInvokedMethodsByProjectName(projectName);
 
+        List<String> methodIdListInCycle = new ArrayList<>();
+
         for(String str:methodInvoke.keySet()){
+            if(str.equals("282"))
+                System.out.println("catch you!");
             Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeAndCycleFlag(str,methodInvoke.get(str));
             List<TreeNode> graphNodeList = nodeAndLinkMap.get("entity");
             List<TreeLink> graphLinkList = nodeAndLinkMap.get("relation");
@@ -99,10 +106,19 @@ public class MethodInvocationCycleTest {
             if(cycleFlag){
                 CycleGraphLinkList.addAll(graphLinkList);
                 CycleGraphNodeList.addAll(graphNodeList);
+                methodIdListInCycle.addAll( nodeAndLinkMap.get("cycleList"));
             }
         }
         CycleNodeAndLinkMap.put("entity", CycleGraphNodeList);
         CycleNodeAndLinkMap.put("relation", CycleGraphLinkList);
+
+        for(String id : methodIdListInCycle){
+            methodInfoDao.updateMethodCycleDependency(id);
+        }
+
+        for(String id : methodIdListInCycle){
+            System.out.println("find cycle: " + id);
+        }
 
 
         return CycleNodeAndLinkMap;

@@ -73,4 +73,10 @@
         where cloneGroupId = #{cloneGroupId}
     </select>
 
+    <update id="updateMethodCycleDependency">
+        update methodinfo
+        set isCycleDependency = 1
+        where ID = #{ID}
+    </update>
+
 </mapper>

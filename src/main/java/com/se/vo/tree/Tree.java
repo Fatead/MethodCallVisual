@@ -86,7 +86,7 @@ public class Tree {
         return nodeAndLinkMap;
     }
 
-    public Map<String, List> depthFirsh(Node root) {
+    public Map<String, List> depthFirst(Node root) {
         if (root == null)
             return null;
 
@@ -109,40 +109,50 @@ public class Tree {
         // 对方法调用树进行深度优先遍历
         Stack<Node> stack = new Stack<>();
         stack.add(root);
-//        graphNodeList.add(new TreeNode(root.getNodeID(), root.associatedObject.getCalledMethodName(), NodeType.METHOD_NODE));
 
         String parentNodeId = null;
         String currentNodeId;
 
+        Set<String> cycleMethodSet = new HashSet<>();
+
         while(!stack.isEmpty()) {
 
             Node currentNode = stack.pop();
-//            currentNodeId = currentNode.getNodeID();
             currentNodeId = StringUtil.UUID();
 
             /*
              * 判断是否出现循环调用：
              * 根据当前节点所代表的calledmethodID中是否已经出现在方法调用链条methodsIncallChain中
              *
-             * 若是，则代表存在循环递归。将存在循环递归的方法的连接加入到graphLinkList中
+             * 若是，则代表存在环状调用。将存在循环递归的方法的连接加入到graphLinkList中
              * 然后回溯到最近一个分支节点（有多个孩子），即删除methodIdIncallChain中最近一个分支节点的所有后代节点
              */
             if (!callChain.isEmpty() && callChain.contains(currentNode.associatedObject.getCalledMethodID())) {
+
+                // 出现环状调用
                 String caller = methodId2NodeId.get(currentNode.associatedObject.getCallMethodID());
                 String called = methodId2NodeId.get(currentNode.associatedObject.getCalledMethodID());
+
                 // 让方法调用链成环
                 graphLinkList.add(new TreeLink(caller, called, NodeRelation.INVOKES));
-                // 出现环状调用，回溯
+
+                // 保存要call chain删除的方法id，用于删除methodId2NodeId
+                List<String> deleteMethodIdInCallChain = callChain.subList(callChain.indexOf(lastBranchNode.associatedObject.getCalledMethodID()) + 1, callChain.size());
+                // 保存 成环的方法调用链 上的每一个方法id
+                List<String> methodIdInCycle = callChain.subList(callChain.indexOf(currentNode.associatedObject.getCalledMethodID()), callChain.size());
+
+                // 回溯
                 callChain = callChain.subList(0, callChain.indexOf(lastBranchNode.associatedObject.getCalledMethodID()) + 1);
                 // 回溯后，对应的parentNodeId也要修改
                 parentNodeId = methodId2NodeId.get(lastBranchNode.associatedObject.getCalledMethodID());
                 // 回溯后，还要把已经从call chain中移除的method从methodId2NodeId中删除
-                List<String> deleteMethodIdInCallChain = callChain.subList(callChain.indexOf(lastBranchNode.associatedObject.getCalledMethodID()) + 1, callChain.size());
                 for(String deletedMethodId : deleteMethodIdInCallChain){
                     methodId2NodeId.remove(deletedMethodId);
                 }
 
                 cycleFlag = true;
+                cycleMethodSet.addAll(methodIdInCycle);
+
             } else {
 
                 // 保存了calledMethodID到节点ID对的映射
@@ -183,16 +193,15 @@ public class Tree {
         }
 
 
-
-        System.out.println(graphNodeList.size());
-        for(TreeNode node : graphNodeList){
-            System.out.println(node.getId()+" : "+node.getName());
-        }
-
-        System.out.println(graphLinkList.size());
-        for(TreeLink link : graphLinkList){
-            System.out.println(link.getSource()+" -> "+link.getTarget());
-        }
+//        System.out.println(graphNodeList.size());
+//        for(TreeNode node : graphNodeList){
+//            System.out.println(node.getId()+" : "+node.getName());
+//        }
+//
+//        System.out.println(graphLinkList.size());
+//        for(TreeLink link : graphLinkList){
+//            System.out.println(link.getSource()+" -> "+link.getTarget());
+//        }
 
 
         Map<String, List> nodeAndLinkMap = new HashMap<>();
@@ -200,6 +209,8 @@ public class Tree {
         List<Boolean> cycleFlags = new ArrayList<>();
         cycleFlags.add(cycleFlag);
         nodeAndLinkMap.put("cycleFlag", cycleFlags);
+        List<String> cycleMethodList =new ArrayList<>(cycleMethodSet);
+        nodeAndLinkMap.put("cycleList", cycleMethodList);
         nodeAndLinkMap.put("entity",graphNodeList);
         nodeAndLinkMap.put("relation",graphLinkList);
         return nodeAndLinkMap;

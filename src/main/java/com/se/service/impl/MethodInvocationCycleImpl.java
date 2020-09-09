@@ -1,5 +1,6 @@
 package com.se.service.impl;
 
+import com.se.dao.MethodInfoDao;
 import com.se.service.MethodInvocationCycle;
 import com.se.service.MethodInvocationInViewService;
 import com.se.vo.TreeLink;
@@ -17,6 +18,8 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
 
     @Resource
     private MethodInvocationInViewService methodInvocationInViewService;
+    @Resource
+    private MethodInfoDao methodInfoDao;
 
     @Override
     public Map<String, List> getAllCycles(String projectName){
@@ -27,6 +30,8 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
         // 入度出度都不为0
         Map<String,String> methodInvoke = methodInvocationInViewService.getAllInvokedMethodsByProjectName(projectName);
 
+        List<String> methodIdListInCycle = new ArrayList<>();
+
         for(String str:methodInvoke.keySet()){
             Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeAndCycleFlag(str,methodInvoke.get(str));
             List<TreeNode> graphNodeList = nodeAndLinkMap.get("entity");
@@ -35,10 +40,15 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
             if(cycleFlag){
                 CycleGraphLinkList.addAll(graphLinkList);
                 CycleGraphNodeList.addAll(graphNodeList);
+                methodIdListInCycle.addAll( nodeAndLinkMap.get("cycleList"));
             }
         }
         CycleNodeAndLinkMap.put("entity", CycleGraphNodeList);
         CycleNodeAndLinkMap.put("relation", CycleGraphLinkList);
+
+        for(String id : methodIdListInCycle){
+            methodInfoDao.updateMethodCycleDependency(id);
+        }
 
 
         return CycleNodeAndLinkMap;

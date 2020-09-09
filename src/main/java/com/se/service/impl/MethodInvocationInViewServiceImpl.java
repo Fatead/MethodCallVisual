@@ -98,7 +98,7 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
         Tree tree = new Tree();
         //节点是方法调用，而不是方法
         Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
-        return tree.depthFirsh(treeNode);
+        return tree.depthFirst(treeNode);
     }
 
 }
