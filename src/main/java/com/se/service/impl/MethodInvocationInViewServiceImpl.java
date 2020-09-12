@@ -106,9 +106,9 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
         cycleFlag = false;
         cycleMethodSet = new HashSet<>();
         callChain = new ArrayList<>();
-        branchNodeMethodId = rootMethodId;
+        String branchNodeMethodId = rootMethodId;
 
-        List<MethodInvocationInView> methodCalls = this.getMethodCallCycle(rootMethodId);
+        List<MethodInvocationInView> methodCalls = this.getMethodCallCycle(rootMethodId, branchNodeMethodId);
 
         Set<TreeNode> graphNodeSet = new HashSet<>();
         Set<TreeLink> graphLinkSet = new HashSet<>();
@@ -132,41 +132,10 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
         return nodeAndLinkMap;
     }
 
-//    @Override
-//    public List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, List<String> callChain, String branchNodeMethodId){
-//        List<MethodInvocationInView> list = new ArrayList<>();
-//
-//        List<MethodInvocationInView> methodCalls =  methodInvocationInViewDao.getMethodCallByCallerMethodId(rootMethodId);
-//
-//        if(methodCalls.size() > 1){
-//            branchNodeMethodId = rootMethodId;
-//            callChain.add(rootMethodId);
-//        } else if(methodCalls.size() == 0)
-//            callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
-//        else {
-//            callChain.add(rootMethodId);
-//        }
-//
-//        for(MethodInvocationInView methodCall : methodCalls){
-//            if(methodCall.getCallMethodID().equals(methodCall.getCalledMethodID()))
-//                continue; //过滤递归调用
-//            list.add(methodCall);
-//            if(callChain.contains(methodCall.getCalledMethodID())){
-//                // 存在环状调用
-//                cycleFlag = true;
-//                List<String> methodIdInCycle = callChain.subList(callChain.indexOf(methodCall.getCalledMethodID()), callChain.size());
-//                cycleMethodSet.addAll(methodIdInCycle);
-//                callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
-//            } else {
-//                list.addAll(this.getMethodCallCycle(methodCall.getCalledMethodID(), callChain, branchNodeMethodId));
-//            }
-//        }
-//
-//        return list;
-//    }
 
     @Override
-    public List<MethodInvocationInView> getMethodCallCycle(String rootMethodId){
+    public List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, String branchNodeMethodId){
+
         List<MethodInvocationInView> list = new ArrayList<>();
 
         List<MethodInvocationInView> methodCalls =  methodInvocationInViewDao.getMethodCallByCallerMethodId(rootMethodId);
@@ -191,7 +160,7 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
                 cycleMethodSet.addAll(methodIdInCycle);
                 callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
             } else {
-                list.addAll(this.getMethodCallCycle(methodCall.getCalledMethodID()));
+                list.addAll(this.getMethodCallCycle(methodCall.getCalledMethodID(), branchNodeMethodId));
             }
         }
 

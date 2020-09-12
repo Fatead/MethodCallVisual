@@ -89,11 +89,17 @@ public class MethodInvocationCycleTest {
 //        for(Map.Entry<String, List> entry: result.entrySet()){
 //            System.out.println("cycle method:"+entry.getKey() + "->" + entry.getValue());
 //        }
+
+
 //        String id = "3058";
 //        String name = "initBufferedWriter";
+
+
         //addNewBufferedWriter
-        String id = "284";
-        String name = "isSameAnnotation";
+
+
+        String id = "276";
+        String name = "isSameAnnotationDirectory";
 
         Map<String, List> result = methodInvocationInViewService.getMethodCallCycleByRootName(id, name);
         for(Map.Entry<String, List> entry: result.entrySet()){

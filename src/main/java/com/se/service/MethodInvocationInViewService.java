@@ -37,7 +37,7 @@ public interface MethodInvocationInViewService {
 
 //    List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, List<String> callChain, String branchNodeMethodId);
 
-    List<MethodInvocationInView> getMethodCallCycle(String rootMethodId);
+    List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, String branchNodeMethodId);
 
     /**
      * 获取方法调用树

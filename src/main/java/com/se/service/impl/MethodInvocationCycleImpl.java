@@ -40,7 +40,7 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
             boolean cycleFlag = (boolean)nodeAndLinkMap.get("cycleFlag").get(0);
             if(cycleFlag){
 //                for(TreeNode t : graphNodeList){
-//                    if(t.getId().equals("3059"))
+//                    if(t.getId().equals("279"))
 //                        System.out.println("catch you");
 //                }
                 CycleGraphLinkList.addAll(graphLinkList);
