@@ -1,6 +1,7 @@
 package com.se.service.impl;
 
 import com.se.dao.MethodInfoDao;
+import com.se.entity.NodeType;
 import com.se.service.MethodInvocationCycle;
 import com.se.service.MethodInvocationInViewService;
 import com.se.vo.TreeLink;
@@ -23,31 +24,46 @@ public class MethodInvocationCycleImpl implements MethodInvocationCycle {
 
     @Override
     public Map<String, List> getAllCycles(String projectName){
-        List<TreeNode> CycleGraphNodeList = new ArrayList<>();
-        List<TreeLink> CycleGraphLinkList = new ArrayList<>();
+        Set<TreeNode> CycleGraphNodeList = new HashSet<>();
+        Set<TreeLink> CycleGraphLinkList = new HashSet<>();
         Map<String, List> CycleNodeAndLinkMap = new HashMap<>();
 
         // 入度出度都不为0
         Map<String,String> methodInvoke = methodInvocationInViewService.getAllInvokedMethodsByProjectName(projectName);
 
-        List<String> methodIdListInCycle = new ArrayList<>();
+        Set<String> methodIdListInCycle = new HashSet<>();
 
-        for(String str:methodInvoke.keySet()){
-            Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodInvokeAndCycleFlag(str,methodInvoke.get(str));
+        for(String str : methodInvoke.keySet()){
+            Map<String, List> nodeAndLinkMap = methodInvocationInViewService.getMethodCallCycleByRootName(str,methodInvoke.get(str));
             List<TreeNode> graphNodeList = nodeAndLinkMap.get("entity");
             List<TreeLink> graphLinkList = nodeAndLinkMap.get("relation");
             boolean cycleFlag = (boolean)nodeAndLinkMap.get("cycleFlag").get(0);
             if(cycleFlag){
+//                for(TreeNode t : graphNodeList){
+//                    if(t.getId().equals("3059"))
+//                        System.out.println("catch you");
+//                }
                 CycleGraphLinkList.addAll(graphLinkList);
                 CycleGraphNodeList.addAll(graphNodeList);
                 methodIdListInCycle.addAll( nodeAndLinkMap.get("cycleList"));
             }
         }
-        CycleNodeAndLinkMap.put("entity", CycleGraphNodeList);
-        CycleNodeAndLinkMap.put("relation", CycleGraphLinkList);
+
+        for(TreeNode node : CycleGraphNodeList){
+            if(methodIdListInCycle.contains(node.getId())){
+                node.setCategory(NodeType.CLASS_NODE);
+            }
+        }
+
+        CycleNodeAndLinkMap.put("entity", new ArrayList(CycleGraphNodeList));
+        CycleNodeAndLinkMap.put("relation", new ArrayList(CycleGraphLinkList));
 
         for(String id : methodIdListInCycle){
             methodInfoDao.updateMethodCycleDependency(id);
+        }
+
+        for(String id : methodIdListInCycle){
+            System.out.println("find cycle: " + id);
         }
 
 

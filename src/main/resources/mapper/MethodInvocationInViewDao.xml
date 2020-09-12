@@ -24,9 +24,7 @@
 
     <select id="getMethodCallTreeByRootName" resultMap="BaseResultMap">
             select *
-            from (select * from methodinvocationinview
-                    where isRecursive = 0
-                    order by callMethodID, calledMethodID) method_invocation_sorted,
+            from (select * from methodinvocationinview where isRecursive = 0 order by callMethodID, calledMethodID) method_invocation_sorted,
                 (select @pv := #{callerMethodId}) root
             where find_in_set(callMethodID, @pv) > 0 and length(@pv := concat(@pv, ',', calledMethodID))
     </select>

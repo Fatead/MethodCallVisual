@@ -1,10 +1,14 @@
 package com.se.service.impl;
 
 import com.se.dao.MethodInvocationInViewDao;
+import com.se.entity.NodeRelation;
+import com.se.entity.NodeSize;
 import com.se.entity.NodeType;
 import com.se.pojo.MethodInvocationInView;
 import com.se.service.MethodInvocationInViewService;
 import com.se.vo.GraphNode;
+import com.se.vo.TreeLink;
+import com.se.vo.TreeNode;
 import com.se.vo.tree.Node;
 import com.se.vo.tree.Tree;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,14 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
 
     @Resource
     private MethodInvocationInViewDao methodInvocationInViewDao;
+
+    private static boolean cycleFlag;
+
+    private static Set<String> cycleMethodSet;
+
+    private static List<String> callChain;
+
+    private static String branchNodeMethodId;
 
 
     @Override
@@ -42,15 +54,6 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
                 rootMethodIdAndName.put(rootNode.getId(), rootNode.getName());
         }
         return rootMethodIdAndName;
-    }
-
-    @Override
-    public Map<String, List> getMethodInvokeTreeByMethodId(String methodId, String methodName) {
-        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
-        Tree tree = new Tree();
-        //节点是方法调用，而不是方法
-        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
-        return tree.breadthFirst(treeNode);
     }
 
     @Override
@@ -92,13 +95,171 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
         return leafMethodCallNodes;
     }
 
+    /**
+     * 获取方法调用树以及是否包含环状调用
+     * @param rootMethodId
+     * @param rootMethodName
+     * @return
+     */
+    @Override
+    public Map<String, List> getMethodCallCycleByRootName(String rootMethodId, String rootMethodName) {
+        cycleFlag = false;
+        cycleMethodSet = new HashSet<>();
+        callChain = new ArrayList<>();
+        branchNodeMethodId = rootMethodId;
 
-    public Map<String, List> getMethodInvokeAndCycleFlag(String methodId, String methodName) {
-        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
-        Tree tree = new Tree();
-        //节点是方法调用，而不是方法
-        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
-        return tree.depthFirst(treeNode);
+        List<MethodInvocationInView> methodCalls = this.getMethodCallCycle(rootMethodId);
+
+        Set<TreeNode> graphNodeSet = new HashSet<>();
+        Set<TreeLink> graphLinkSet = new HashSet<>();
+
+        graphNodeSet.add(new TreeNode(rootMethodId, rootMethodName, NodeType.METHOD_NODE, NodeSize.METHOD_SIZE)); // 加入根节点
+
+        for(MethodInvocationInView methodCall : methodCalls){
+            graphNodeSet.add(new TreeNode(methodCall.getCalledMethodID(), methodCall.getCalledMethodName(), NodeType.METHOD_NODE, NodeSize.METHOD_SIZE));
+            graphLinkSet.add(new TreeLink(methodCall.getCallMethodID(), methodCall.getCalledMethodID(), NodeRelation.INVOKES));
+        }
+
+        Map<String, List> nodeAndLinkMap = new HashMap<>();
+
+        List<Boolean> cycleFlags = new ArrayList<>();
+        cycleFlags.add(cycleFlag);
+        nodeAndLinkMap.put("cycleFlag", cycleFlags);
+        List<String> cycleMethodList =new ArrayList<>(cycleMethodSet);
+        nodeAndLinkMap.put("cycleList", cycleMethodList);
+        nodeAndLinkMap.put("entity", new ArrayList(graphNodeSet));
+        nodeAndLinkMap.put("relation", new ArrayList(graphLinkSet));
+        return nodeAndLinkMap;
     }
+
+//    @Override
+//    public List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, List<String> callChain, String branchNodeMethodId){
+//        List<MethodInvocationInView> list = new ArrayList<>();
+//
+//        List<MethodInvocationInView> methodCalls =  methodInvocationInViewDao.getMethodCallByCallerMethodId(rootMethodId);
+//
+//        if(methodCalls.size() > 1){
+//            branchNodeMethodId = rootMethodId;
+//            callChain.add(rootMethodId);
+//        } else if(methodCalls.size() == 0)
+//            callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+//        else {
+//            callChain.add(rootMethodId);
+//        }
+//
+//        for(MethodInvocationInView methodCall : methodCalls){
+//            if(methodCall.getCallMethodID().equals(methodCall.getCalledMethodID()))
+//                continue; //过滤递归调用
+//            list.add(methodCall);
+//            if(callChain.contains(methodCall.getCalledMethodID())){
+//                // 存在环状调用
+//                cycleFlag = true;
+//                List<String> methodIdInCycle = callChain.subList(callChain.indexOf(methodCall.getCalledMethodID()), callChain.size());
+//                cycleMethodSet.addAll(methodIdInCycle);
+//                callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+//            } else {
+//                list.addAll(this.getMethodCallCycle(methodCall.getCalledMethodID(), callChain, branchNodeMethodId));
+//            }
+//        }
+//
+//        return list;
+//    }
+
+    @Override
+    public List<MethodInvocationInView> getMethodCallCycle(String rootMethodId){
+        List<MethodInvocationInView> list = new ArrayList<>();
+
+        List<MethodInvocationInView> methodCalls =  methodInvocationInViewDao.getMethodCallByCallerMethodId(rootMethodId);
+
+        if(methodCalls.size() > 1){
+            branchNodeMethodId = rootMethodId;
+            callChain.add(rootMethodId);
+        } else if(methodCalls.size() == 0)
+            callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+        else {
+            callChain.add(rootMethodId);
+        }
+
+        for(MethodInvocationInView methodCall : methodCalls){
+            if(methodCall.getCallMethodID().equals(methodCall.getCalledMethodID()))
+                continue; //过滤递归调用
+            list.add(methodCall);
+            if(callChain.contains(methodCall.getCalledMethodID())){
+                // 存在环状调用
+                cycleFlag = true;
+                List<String> methodIdInCycle = callChain.subList(callChain.indexOf(methodCall.getCalledMethodID()), callChain.size());
+                cycleMethodSet.addAll(methodIdInCycle);
+                callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+            } else {
+                list.addAll(this.getMethodCallCycle(methodCall.getCalledMethodID()));
+            }
+        }
+
+        return list;
+    }
+
+
+    /**
+     * 获取方法调用树
+     * @param methodId
+     * @param methodName
+     * @return
+     */
+    @Override
+    public Map<String, List> getMethodInvokeTreeByMethodId(String methodId, String methodName) {
+//        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
+        List<String> callChain = new ArrayList<>();
+        List<MethodInvocationInView> result = this.getMethodCallChainByRootName(methodId, callChain, methodId);
+//        Tree tree = new Tree();
+//        //节点是方法调用，而不是方法
+//        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
+//        return tree.breadthFirst(treeNode);
+        return  this.getMethodCallChainNodeAndLinkMap(result, methodId, methodName);
+    }
+
+    @Override
+    public Map<String, List> getMethodCallChainNodeAndLinkMap(List<MethodInvocationInView> methodCalls, String rootMethodId, String rootMethodName){
+        Set<TreeNode> graphNodeSet = new HashSet<>();
+        Set<TreeLink> graphLinkSet = new HashSet<>();
+
+        graphNodeSet.add(new TreeNode(rootMethodId, rootMethodName, NodeType.METHOD_NODE, NodeSize.METHOD_SIZE)); // 加入根节点
+
+        for(MethodInvocationInView methodCall : methodCalls){
+            graphNodeSet.add(new TreeNode(methodCall.getCalledMethodID(), methodCall.getCalledMethodName(), NodeType.METHOD_NODE, NodeSize.METHOD_SIZE));
+            graphLinkSet.add(new TreeLink(methodCall.getCallMethodID(), methodCall.getCalledMethodID(), NodeRelation.INVOKES));
+        }
+
+        Map<String, List> nodeAndLinkMap = new HashMap<>();
+        nodeAndLinkMap.put("entity", new ArrayList(graphNodeSet));
+        nodeAndLinkMap.put("relation", new ArrayList(graphLinkSet));
+        return nodeAndLinkMap;
+    }
+
+    @Override
+    public List<MethodInvocationInView> getMethodCallChainByRootName(String rootMethodId, List<String> callChain, String branchNodeMethodId){
+        callChain.add(rootMethodId);
+
+        List<MethodInvocationInView> list = new ArrayList<>();
+
+        List<MethodInvocationInView> methodCalls =  methodInvocationInViewDao.getMethodCallByCallerMethodId(rootMethodId);
+
+        if(methodCalls.size() > 1)
+            branchNodeMethodId = rootMethodId;
+        else if(methodCalls.size() == 0)
+            callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+
+        for(MethodInvocationInView methodCall : methodCalls){
+            list.add(methodCall);
+            if(callChain.contains(methodCall.getCalledMethodID())){
+                // 存在环状调用
+                callChain = callChain.subList(0, callChain.indexOf(branchNodeMethodId) + 1);
+            } else {
+                list.addAll(this.getMethodCallChainByRootName(methodCall.getCalledMethodID(), callChain, branchNodeMethodId));
+            }
+        }
+
+        return list;
+    }
+
 
 }

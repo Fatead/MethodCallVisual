@@ -1,5 +1,7 @@
 package com.se.vo;
 
+import java.util.Objects;
+
 public class TreeLink {
     private String source;
     private String target;
@@ -42,6 +44,19 @@ public class TreeLink {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TreeLink)) return false;
+        TreeLink treeLink = (TreeLink) o;
+        return (Objects.equals(source, treeLink.source) && Objects.equals(target, treeLink.target));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(source,target);
     }
 
 }

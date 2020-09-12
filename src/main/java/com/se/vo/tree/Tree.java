@@ -11,6 +11,7 @@ import java.util.*;
 
 
 public class Tree {
+
     //每个节点是一个方法调用
     public Node buildTreeAndGetRoots(List<MethodInvocationInView> actualObjects, String rootMethodId, String rootMethodName) {
         MethodInvocationInView rootMethod = new MethodInvocationInView();
@@ -187,8 +188,6 @@ public class Tree {
                 for (Node childNode : currentNode.children) {
                     stack.push(childNode);
                 }
-
-
             }
         }
 

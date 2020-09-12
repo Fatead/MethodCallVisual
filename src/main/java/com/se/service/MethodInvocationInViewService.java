@@ -1,5 +1,7 @@
 package com.se.service;
 
+import com.se.pojo.MethodInvocationInView;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,7 +10,6 @@ public interface MethodInvocationInViewService {
 
     Map<String, String> getAllMethodInvokeTreeRootsByProjectName(String projectName);
 
-    Map<String, List> getMethodInvokeTreeByMethodId(String methodId, String methodName);
 
 
     /**
@@ -27,13 +28,28 @@ public interface MethodInvocationInViewService {
     Set<String> getLeafNodesOfCallTree(String methodId, String methodName);
 
     /**
-     * 判断是否存在环状调用并返回
+     * 获取环状调用
+     * @param rootMethodId
+     * @param rootMethodName
+     * @return
+     */
+    Map<String, List> getMethodCallCycleByRootName(String rootMethodId, String rootMethodName);
+
+//    List<MethodInvocationInView> getMethodCallCycle(String rootMethodId, List<String> callChain, String branchNodeMethodId);
+
+    List<MethodInvocationInView> getMethodCallCycle(String rootMethodId);
+
+    /**
+     * 获取方法调用树
      * @param methodId
      * @param methodName
      * @return
      */
-    Map<String, List> getMethodInvokeAndCycleFlag(String methodId, String methodName);
+    Map<String, List> getMethodInvokeTreeByMethodId(String methodId, String methodName);
 
+    Map<String, List> getMethodCallChainNodeAndLinkMap(List<MethodInvocationInView> methodCalls, String rootMethodId, String rootMethodName);
+
+    List<MethodInvocationInView> getMethodCallChainByRootName(String rootMethodId, List<String> callChain, String branchNodeMethodId);
 
 
 }
