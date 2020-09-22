@@ -60,5 +60,7 @@ public interface MethodInfoDao {
 
     int updateMethodCycleDependency(@Param("ID")String id);
 
+    List<MethodInfo> getMethodInCycle(@Param("projectName") String projectName);
+
 
 }

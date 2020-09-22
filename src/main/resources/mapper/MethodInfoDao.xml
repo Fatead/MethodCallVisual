@@ -79,4 +79,10 @@
         where ID = #{ID}
     </update>
 
+    <select id="getMethodInCycle" resultMap="BaseResultMap">
+        select *
+        from methodinfo
+        where projectName = #{projectName} and isCycleDependency = 1 and is_delete = 0
+    </select>
+
 </mapper>
