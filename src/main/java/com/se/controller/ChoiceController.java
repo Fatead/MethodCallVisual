@@ -36,4 +36,9 @@ public class ChoiceController {
         return "topicView";
     }
 
+    @GetMapping("methodcallchange")
+    public String getMethodCallChangePage(HttpServletRequest request, HttpServletResponse response){
+        return "MethodCallChangePage";
+    }
+
 }

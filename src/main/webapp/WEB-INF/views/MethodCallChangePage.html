@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <title>Spring项目可视化</title>
+    <link rel="stylesheet" href="/methodClone/css/bootstrap.min.css">
+    <script src="/methodClone/js/echarts.min.js"></script>
+    <script src="/methodClone/js/vue.js"></script>
+    <script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main {
+            width: 100%;
+            min-height: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- 为ECharts准备一个全屏的Dom -->
+<div class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">项目代码可视化系统</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/methodClone/">返回首页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <form role="form">
+            <div class="form-group" style="width: 30%;margin-left: 35%">
+                <label>选择需要进行可视化的Spring项目</label>
+                    <select class="form-control" id="projectNameList">
+
+                    </select>
+
+                <label>选择变化范围</label>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <select class="form-control">
+
+                        </select>
+                    </div>
+
+                    <div class="col-xs-6">
+                        <select class="form-control">
+
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-default">查看</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="main">
+</div>
+<script>
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            entityAndrelation: {
+                "entity":[],
+                "relation":[]
+            }
+        },
+        method: {
+            display(){
+                // to do
+            }
+        },
+        created(){
+        },
+        mounted(){
+            var thisData = this
+
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+
+            // 获取项目的日期范围
+            $("#projectNameList").change(function () {
+                $.ajax({
+                    type:'POST',
+                    // data:'',
+                    url:'/methodClone/change/getDataRange',
+                    dataType: 'json',
+                    data: {
+                        projectName:$("#projectNameList option:selected").text()
+                    },
+                    success: function(msg){
+                        var data = JSON.parse(JSON.stringify(msg)).data
+                        myChart.hideLoading();
+                        console.log(data)
+                    }
+                })
+            });
+
+            $(document).ready(function(){
+                $.ajax({
+                    type:'GET',
+                    data:'',
+                    url:'/methodClone/spring/getProjectList',
+                    dataType: 'json',
+                    success: function(msg) {
+                        var data = JSON.parse(JSON.stringify(msg))
+                        console.log(data)
+                        var projectNameList = data.data
+                        var Array = [...projectNameList]
+                        $("#projectNameList").prepend("<option>请选择</option>");
+                        Array.forEach(function(item){
+                            $("#projectNameList").prepend("<option>" + item + "</option>")
+                        });
+                    }
+                });
+            });
+        }
+
+
+
+    })
+</script>
+</body>
+</html>
