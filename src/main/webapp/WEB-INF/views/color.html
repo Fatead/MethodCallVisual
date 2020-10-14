@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <title>Spring项目可视化</title>
+    <link rel="stylesheet" href="/methodClone/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="/methodClone/js/echarts.min.js"></script>
+    <script src="/methodClone/js/vue.js"></script>
+    <script src="/methodClone/js/jquery-3.5.1.min.js"></script>
+
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #main {
+            width: 100%;
+            min-height: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- 为ECharts准备一个全屏的Dom -->
+<div class="navbar navbar-default">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="#" class="navbar-brand">项目代码可视化系统</a>
+        </div>
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/methodClone/">返回首页</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group" style="width: 30%;margin-left: 35%">
+            <label>选择需要进行可视化的Spring项目</label>
+            <select class="form-control" id="projectNameList" onchange="getBeginDate(),getEndDate()">
+
+            </select>
+            <label>红色节点：已删除的方法</label>
+            <br>
+            <label>蓝色节点：新建的方法</label>
+            <br>
+            <label>紫色节点：修改过的方法</label>
+            <br>
+            <label>黑色节点：无改动的方法</label>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="form-group" style="width: 30%;margin-left: 35%">
+            <label>选择开始时间:</label>
+            <select class="form-control" id="begindate">
+
+            </select>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="form-group" style="width: 30%;margin-left: 35%">
+            <label>选择结束时间:</label>
+            <select class="form-control" id="enddate">
+
+            </select>
+        </div>
+    </div>
+</div>
+
+<div id="main">
+</div>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            entityAndrelation: {
+                "entity":[],
+                "relation":[]
+            }
+        },
+        method: {},
+        created(){
+        },
+        mounted(){
+            var thisData = this
+            // 基于准备好的dom，初始化echarts实例
+            $("#projectNameList").change(function () {
+                $.ajax({
+                    type:'POST',
+                    // data:'',
+                    url:'/methodClone/color/getAll',
+                    dataType: 'json',
+                    data: {
+                        projectName:$("#projectNameList option:selected").text()
+                    }
+                })
+            });
+
+            $(document).ready(function(){
+                $.ajax({
+                    type:'GET',
+                    data:'',
+                    url:'/methodClone/color/getProjectList',
+                    dataType: 'json',
+                    success: function(msg) {
+
+                        var data = JSON.parse(JSON.stringify(msg))
+                        var projectNameList = data.data
+                        var Array = [...projectNameList]
+                        $("#projectNameList").prepend("<option>请选择</option>");
+                        Array.forEach(function(item){
+                            $("#projectNameList").prepend("<option>" + item + "</option>")
+                        });
+                    }
+                });
+            });
+        }
+    })
+
+    function getBeginDate() {
+
+        $.ajax({
+            type:'POST',
+            // data: {
+            //     timesmethod:$("#times_list option:selected").text()
+            // },
+            url:'/methodClone/color/getBeginDate',
+            dataType: 'json',
+            success: function(msg) {
+                $("#begindate").empty();
+                var data = JSON.parse(JSON.stringify(msg));
+                console.log(data)
+                var methodRootList = data.data;
+                var Array = [...methodRootList];
+                $("#begindate").prepend("<option>请选择</option>");
+                Array.forEach(function(item){
+                    $("#begindate").prepend("<option>" + item + "</option>")
+                })
+            }
+        })
+    }
+
+    function getEndDate() {
+
+        $.ajax({
+            type:'POST',
+            // data: {
+            //     timesmethod:$("#times_list option:selected").text()
+            // },
+            url:'/methodClone/color/getEndDate',
+            dataType: 'json',
+            success: function(msg) {
+                $("#enddate").empty();
+                var data = JSON.parse(JSON.stringify(msg));
+                var methodRootList = data.data;
+                var Array = [...methodRootList];
+                $("#enddate").prepend("<option>请选择</option>");
+                Array.forEach(function(item){
+                    $("#enddate").prepend("<option>" + item + "</option>")
+                })
+            }
+        })
+    }
+
+    var myChart1 = echarts.init(document.getElementById('main'));
+    $("#enddate").change(function () {
+        $.ajax({
+            type:'POST',
+            // data:'',
+            url:'/methodClone/color/tree',
+            dataType: 'json',
+            data: {
+                begindate:$("#begindate option:selected").text(),
+                enddate:$("#enddate option:selected").text()
+            },
+            success: function(msg){
+                var data = JSON.parse(JSON.stringify(msg)).data
+                myChart1.hideLoading();
+                console.log("********")
+                console.log(data)
+                console.log("********")
+                echarts.util.each(data.children, function (datum, index) {
+                    index % 2 === 0 && (datum.collapsed = true);
+                });
+                myChart1.setOption(option = {
+                    tooltip: {
+                        trigger: 'item',
+                        triggerOn: 'mousemove'
+                    },
+                    series: [
+                        {
+                            type: 'tree',
+                            data: [data],
+                            top: '1%',
+                            left: '7%',
+                            bottom: '1%',
+                            right: '20%',
+                            symbolSize: 10,
+                            //orient: 'vertical',
+                            label: {
+                                position: 'left',
+                                verticalAlign: 'middle',
+                                align: 'right',
+                                fontSize: 12
+                                //rotate: -90
+                            },
+                            leaves: {
+                                label: {
+                                    position: 'right',
+                                    verticalAlign: 'middle',
+                                    align: 'left'
+                                }
+                            },
+                            expandAndCollapse: true,
+                            animationDuration: 550,
+                            animationDurationUpdate: 750
+                        }
+                    ]
+                });
+            }
+        })
+    });
+</script>
+</body>
+</html>
