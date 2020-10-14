@@ -102,7 +102,12 @@ public class LayerMethodCallServiceImpl implements LayerMethodCallService {
         root.setChildren(this.getLayTreeList(children));
         for (int i=0;i<root.getChildren().size();i++){
             LayerTree head=root.getChildren().get(i);
-            DFS(head);
+            try {
+                DFS(head);
+            }catch (StackOverflowError error){
+                return null;
+            }
+
         }
         this.curr_root=root;
         return root;

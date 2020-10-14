@@ -120,7 +120,12 @@
                     success: function(msg){
                         var data = JSON.parse(JSON.stringify(msg)).data
                         myChart.hideLoading();
-                        console.log(data)
+                        //***********
+                        if (data==null){
+                            alert("当前项目存在环状调用！！！");
+                            return ;
+                        }
+                        //***********
                         echarts.util.each(data.children, function (datum, index) {
                             index % 2 === 0 && (datum.collapsed = true);
                         });
