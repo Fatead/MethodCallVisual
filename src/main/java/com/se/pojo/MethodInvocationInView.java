@@ -1,5 +1,9 @@
 package com.se.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
+
 public class MethodInvocationInView {
 
     private String ProjectName;
@@ -14,6 +18,7 @@ public class MethodInvocationInView {
     private String callClassID;
     private String calledClassID;
     private String ID;
+
 
     public String getProjectName() {
         return ProjectName;
@@ -109,5 +114,24 @@ public class MethodInvocationInView {
 
     public void setCalledClassID(String calledClassID) {
         this.calledClassID = calledClassID;
+    }
+
+
+    @Override
+    public String toString() {
+        return "MethodInvocationInView{" +
+                "ProjectName='" + ProjectName + '\'' +
+                ", CallClassName='" + CallClassName + '\'' +
+                ", CalledClassName='" + CalledClassName + '\'' +
+                ", CalledMethodName='" + CalledMethodName + '\'' +
+                ", CallMethodName='" + CallMethodName + '\'' +
+                ", CallMethodParameters='" + CallMethodParameters + '\'' +
+                ", CallMethodReturnType='" + CallMethodReturnType + '\'' +
+                ", callMethodID='" + callMethodID + '\'' +
+                ", calledMethodID='" + calledMethodID + '\'' +
+                ", callClassID='" + callClassID + '\'' +
+                ", calledClassID='" + calledClassID + '\'' +
+                ", ID='" + ID + '\'' +
+                '}';
     }
 }

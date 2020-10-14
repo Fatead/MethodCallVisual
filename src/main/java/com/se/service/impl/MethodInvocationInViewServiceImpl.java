@@ -32,6 +32,11 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
     private static String branchNodeMethodId;
 
 
+    /**
+     * 根据工程名获取该工程下入度为0的方法节点
+     * @param projectName
+     * @return
+     */
     @Override
     public Map<String, String> getAllMethodInvokeTreeRootsByProjectName(String projectName) {
         //计算入度为0的节点
@@ -176,13 +181,8 @@ public class MethodInvocationInViewServiceImpl implements MethodInvocationInView
      */
     @Override
     public Map<String, List> getMethodInvokeTreeByMethodId(String methodId, String methodName) {
-//        List<MethodInvocationInView> result = methodInvocationInViewDao.getMethodCallTreeByRootName(methodId);
         List<String> callChain = new ArrayList<>();
         List<MethodInvocationInView> result = this.getMethodCallChainByRootName(methodId, callChain, methodId);
-//        Tree tree = new Tree();
-//        //节点是方法调用，而不是方法
-//        Node treeNode = tree.buildTreeAndGetRoots(result, methodId, methodName);
-//        return tree.breadthFirst(treeNode);
         return  this.getMethodCallChainNodeAndLinkMap(result, methodId, methodName);
     }
 

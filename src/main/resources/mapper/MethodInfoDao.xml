@@ -15,6 +15,15 @@
         <result column="asset" jdbcType="INTEGER" property="isAsset"/>
         <result column="topicWords" jdbcType="VARCHAR" property="topicWords"/>
     </resultMap>
+    <resultMap id="ResultMapWithDate" type="com.se.pojo.Method">
+        <result column="projectName" jdbcType="VARCHAR" property="projectName"/>
+        <result column="methodName" jdbcType="VARCHAR" property="methodName"/>
+        <result column="className" jdbcType="VARCHAR" property="className"/>
+        <result column="ID" jdbcType="INTEGER" property="ID"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="create_time" jdbcType="DATE" property="createTime"></result>
+        <result column="update_time" jdbcType="DATE" property="updateTime"></result>
+    </resultMap>
 
     <select id="getMethodInfoListByClassName" parameterType="java.lang.String" resultMap="BaseResultMap">
         select * from methodinfo
@@ -83,6 +92,14 @@
         select *
         from methodinfo
         where projectName = #{projectName} and isCycleDependency = 1 and is_delete = 0
+    </select>
+
+    <select id="getAllMethod" resultMap="ResultMapWithDate" parameterType="java.lang.String">
+        select
+        ID,projectName,className,methodName,create_time,update_time,is_delete
+        from methodinfo
+        where projectName = #{projectName}
+        order by create_time DESC
     </select>
 
 </mapper>

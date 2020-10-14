@@ -14,5 +14,4 @@ public interface MethodInvocationInfoDao {
     List<String> getAllProjectName();
     List<MethodInvocationInfo> getMethodInvocationByProjectName(@Param("projectName") String projectName);
     List<MethodInvocationInfo> getCalledMethodByCallNameAndProjectName(@Param("callMethodName") String callMethodName,@Param("projectName") String projectName);
-
 }

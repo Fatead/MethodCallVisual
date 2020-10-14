@@ -36,9 +36,13 @@ public class ChoiceController {
         return "topicView";
     }
 
-    @GetMapping("methodcallchange")
-    public String getMethodCallChangePage(HttpServletRequest request, HttpServletResponse response){
-        return "MethodCallChangePage";
+    @GetMapping("layer")
+    public String getLayerMethodCallPage(HttpServletRequest request, HttpServletResponse response){
+        return "LayerMethodCall";
     }
 
+    @GetMapping("color")
+    public String getColorPage(HttpServletRequest request, HttpServletResponse response){
+        return "color";
+    }
 }

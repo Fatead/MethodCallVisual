@@ -1,5 +1,6 @@
 package com.se.dao;
 
+import com.se.pojo.Method;
 import com.se.pojo.MethodInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -62,5 +63,6 @@ public interface MethodInfoDao {
 
     List<MethodInfo> getMethodInCycle(@Param("projectName") String projectName);
 
+    List<Method> getAllMethod(@Param("projectName")String projectName);
 
 }

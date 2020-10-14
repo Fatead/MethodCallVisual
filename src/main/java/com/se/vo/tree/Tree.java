@@ -191,18 +191,6 @@ public class Tree {
             }
         }
 
-
-//        System.out.println(graphNodeList.size());
-//        for(TreeNode node : graphNodeList){
-//            System.out.println(node.getId()+" : "+node.getName());
-//        }
-//
-//        System.out.println(graphLinkList.size());
-//        for(TreeLink link : graphLinkList){
-//            System.out.println(link.getSource()+" -> "+link.getTarget());
-//        }
-
-
         Map<String, List> nodeAndLinkMap = new HashMap<>();
 
         List<Boolean> cycleFlags = new ArrayList<>();
